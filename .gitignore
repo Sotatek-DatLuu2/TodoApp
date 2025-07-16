@@ -1,5 +1,5 @@
-requirements.txt
-alembic.ini
-.idea
-__pycache__
-elembic
+
+
+.idea/
+__pycache__/
+
