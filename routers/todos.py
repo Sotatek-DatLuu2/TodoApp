@@ -5,7 +5,6 @@ from starlette.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 from database import SessionLocal
 from models import Todos
-# Import từ các module mới tạo
 from modules.todos_modules.todo_schemas import TodoRequest
 from modules.todos_modules.todo_crud import (
     get_all_todos_for_user, get_todo_by_id_for_user,
@@ -32,9 +31,7 @@ user_dependency = Annotated[dict, Depends(get_current_user)]
 
 
 def redirect_to_login():
-    """
-    Hàm tiện ích để chuyển hướng người dùng đến trang đăng nhập và xóa cookie.
-    """
+
     redirect_response = RedirectResponse(url="/auth/login-page", status_code=status.HTTP_302_FOUND)
     redirect_response.delete_cookie(key='access_token')
     return redirect_response

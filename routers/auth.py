@@ -65,26 +65,17 @@ async def render_change_password_page(request: Request):
 # --- API Endpoints ---
 
 def authenticate_user(username: str, password: str, db: Session):
-    """
-    Xác thực người dùng bằng tên đăng nhập và mật khẩu.
-    """
     user = get_user_by_username(db, username)
     if not user or not user.is_active or not verify_password(password, user.hashed_password):
         return False
     return user
 
 async def get_current_user(token: Annotated[str, Depends(oauth2_bearer)]):
-    """
-    Lấy thông tin người dùng hiện tại từ token JWT.
-    """
     return decode_access_token(token)
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
 async def register_user(db: db_dependency, create_user_request: CreateUserRequest):
-    """
-    Endpoint đăng ký người dùng mới.
-    """
     if get_user_by_email(db, create_user_request.email):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Email already exists.')
     if get_user_by_username(db, create_user_request.username):
@@ -104,9 +95,6 @@ async def register_user(db: db_dependency, create_user_request: CreateUserReques
 @router.post("/token", response_model=Token)
 async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
                                  db: db_dependency):
-    """
-    Endpoint để lấy JWT access token.
-    """
     user = authenticate_user(form_data.username, form_data.password, db)
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -117,9 +105,6 @@ async def login_for_access_token(form_data: Annotated[OAuth2PasswordRequestForm,
 
 @router.post("/forgot-password", status_code=status.HTTP_200_OK)
 async def forgot_password_endpoint(request: ForgotPasswordRequest, db: db_dependency):
-    """
-    Endpoint để yêu cầu đặt lại mật khẩu.
-    """
     user = get_user_by_email(db, request.email)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
@@ -133,9 +118,6 @@ async def forgot_password_endpoint(request: ForgotPasswordRequest, db: db_depend
 
 @router.post("/reset-password", status_code=status.HTTP_200_OK)
 async def reset_password_endpoint(request: ResetPasswordRequest, db: db_dependency):
-    """
-    Endpoint để đặt lại mật khẩu bằng token.
-    """
     reset_token_entry = get_password_reset_token_entry(db, request.token)
 
     if not reset_token_entry or datetime.utcnow() > reset_token_entry.expires_at:
@@ -159,9 +141,6 @@ async def change_password_endpoint(
     db: db_dependency,
     current_user: Annotated[dict, Depends(get_current_user)]
 ):
-    """
-    Endpoint để thay đổi mật khẩu cho người dùng đã đăng nhập.
-    """
     user_id = current_user.get("id")
     user = get_user_by_id(db, user_id)
 

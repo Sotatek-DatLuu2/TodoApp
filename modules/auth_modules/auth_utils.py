@@ -22,30 +22,18 @@ EMAIL_FROM = config.EMAIL_ADDRESS
 bcrypt_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    """
-    Xác minh mật khẩu thường với mật khẩu đã băm.
-    """
     return bcrypt_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
-    """
-    Băm mật khẩu.
-    """
     return bcrypt_context.hash(password)
 
 def create_access_token(username: str, user_id: int, role: str, expires_delta: timedelta) -> str:
-    """
-    Tạo JWT access token.
-    """
     encode = {'sub': username, 'id': user_id, 'role': role}
     expires = datetime.utcnow() + expires_delta
     encode.update({'exp': expires})
     return jwt.encode(encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_access_token(token: str) -> dict:
-    """
-    Giải mã JWT access token.
-    """
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get('sub')
@@ -60,9 +48,6 @@ def decode_access_token(token: str) -> dict:
                             detail='Could not validate user.')
 
 def send_password_reset_email(email_to: str, user_first_name: str, token: str):
-    """
-    Gửi email chứa liên kết đặt lại mật khẩu.
-    """
     reset_link = f"http://localhost:8000/auth/reset-password-page?token={token}" # Thay đổi domain nếu deploy
     subject = "Password Reset Request"
     body = f"""
