@@ -1,0 +1,35 @@
+
+services:
+  # Dịch vụ cho ứng dụng FastAPI của bạn
+  app:
+    build: . # Xây dựng hình ảnh từ Dockerfile trong thư mục hiện tại
+    ports:
+      - "8000:8000" # Ánh xạ cổng 8000 của container ra cổng 8000 của máy chủ
+    volumes:
+      - .:/app # Gắn thư mục hiện tại của dự án vào /app trong container (hữu ích cho phát triển)
+    depends_on:
+      - db # Đảm bảo dịch vụ 'db' khởi động trước 'app'
+    environment: # Các biến môi trường sẽ được truyền vào container 'app'
+      # DATABASE_URL sẽ được sử dụng trong config.py của bạn
+      # 'db' là tên dịch vụ của PostgreSQL trong Docker Compose network
+      DATABASE_URL: "postgresql+psycopg2://postgres:123456@db:5432/Todosapp"
+      # SECRET_KEY cho JWT (nên được lấy từ config.py hoặc biến môi trường)
+      SECRET_KEY: "e5944be1ea9d658a7dca1a52daa154c3844370a765e824127f34e8bf877a2cdc"
+      # Các biến môi trường cho email (đảm bảo khớp với config.py)
+      EMAIL_ADDRESS: "luutiendat1811@gmail.com"
+      EMAIL_PASSWORD: "dbodaxtewdwhrlmi"
+      SMTP_HOST: "smtp.gmail.com"
+      SMTP_PORT: "587"
+
+  # Dịch vụ cho cơ sở dữ liệu PostgreSQL
+  db:
+    image: postgres:13 # Sử dụng hình ảnh PostgreSQL phiên bản 13
+    environment: # Các biến môi trường để cấu hình PostgreSQL
+      POSTGRES_DB: Todosapp
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - pg_data:/var/lib/postgresql/data # Gắn volume để lưu trữ dữ liệu database (giúp dữ liệu không bị mất khi container dừng)
+
+volumes:
+  pg_data: # Định nghĩa volume để lưu trữ dữ liệu của PostgreSQL
